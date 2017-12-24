@@ -37,8 +37,32 @@ class PhotoStore {
         let task = session.dataTask(with: request) {
             (data, response, error) -> Void in
             
+            if let httpResponse = response as? HTTPURLResponse {
+                print("The status code is: \(httpResponse.statusCode) and the header files are: \(httpResponse.allHeaderFields)")
+            }
             let result = self.processPhotoRequest(data: data, error: error)
-            completion(result)
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchRecentPhotos(completion: @escaping (PhotoResult) -> Void) {
+        
+        let url = FlickrAPI.recentPhotosURL
+        let request = URLRequest(url: url)
+        
+        let task = session.dataTask(with: request) {
+            (data, response, error) -> Void in
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("The status code is: \(httpResponse.statusCode) and the header files are: \(httpResponse.allHeaderFields)")
+            }
+            let result = self.processPhotoRequest(data: data, error: error)
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
         }
         task.resume()
     }
@@ -59,7 +83,9 @@ class PhotoStore {
             (data, response, error) -> Void in
             
             let result = self.processImageRequest(data: data, error: error)
-            completion(result)
+            OperationQueue.main.addOperation {
+                completion(result)
+            }
         }
         task.resume()
     }
